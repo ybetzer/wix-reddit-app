@@ -36,6 +36,7 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         postListAdapter = new RedditLobbyAdapter(posts);
         postsRecyclerView.setAdapter(postListAdapter);
         linearLayoutManager = new LinearLayoutManager(getContext());
+        postsRecyclerView.setLayoutManager(linearLayoutManager);
         return rootView;
     }
 
