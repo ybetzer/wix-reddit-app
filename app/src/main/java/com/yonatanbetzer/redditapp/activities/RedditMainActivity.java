@@ -50,7 +50,5 @@ public class RedditMainActivity extends AppCompatActivity {
 
             }
         });
-
-        // https://www.reddit.com/r/politics.json
     }
 }
