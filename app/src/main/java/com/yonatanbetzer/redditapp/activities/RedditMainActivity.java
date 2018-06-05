@@ -47,7 +47,5 @@ public class RedditMainActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 }
