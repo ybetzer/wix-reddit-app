@@ -5,9 +5,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
 
@@ -51,6 +48,6 @@ public class RedditMainActivity extends AppCompatActivity {
             }
         });
 
-        // https://www.reddit.com/r/politics.json
+
     }
 }
