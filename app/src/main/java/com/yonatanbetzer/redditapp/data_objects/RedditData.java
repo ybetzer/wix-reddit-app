@@ -40,4 +40,31 @@ public class RedditData {
         result.preview = RedditPreview.fromJsonObject(source.optJSONObject("preview"));
         return result;
     }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public RedditPreview getPreview() { return preview; }
+
+    public String getBestImageUrl() {
+        if(preview != null) {
+            if(preview.getSource() != null) {
+                return preview.getSource().getUrl();
+            }
+            if(preview.getResolutions() != null &&
+                    preview.getResolutions().size() > 0) {
+                return preview.getResolutions().get(preview.getResolutions().size() - 1).getUrl();
+            }
+        }
+        return thumbnail;
+    }
 }

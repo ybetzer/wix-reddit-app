@@ -34,4 +34,12 @@ public class RedditThing {
         result.data = RedditData.fromJsonObject(source.optJSONObject("data"));
         return result;
     }
+
+    public RedditData getData() {
+        return data;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
