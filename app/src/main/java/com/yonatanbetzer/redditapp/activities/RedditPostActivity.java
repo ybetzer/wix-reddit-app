@@ -20,6 +20,6 @@ public class RedditPostActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RedditApplication.setCurrentActivity(this);
+        RedditApplication.getInstance().setCurrentActivity(this);
     }
 }

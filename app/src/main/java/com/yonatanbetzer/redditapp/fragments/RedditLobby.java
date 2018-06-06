@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +17,23 @@ import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditListing;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
+import com.yonatanbetzer.redditapp.favorites.Favorites;
 import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
 import com.yonatanbetzer.redditapp.server.VolleySingleton;
 import com.yonatanbetzer.redditapp.utils.Constants;
+import com.yonatanbetzer.redditapp.utils.FilterListener;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class RedditLobby extends android.support.v4.app.Fragment {
+public class RedditLobby extends android.support.v4.app.Fragment implements FilterListener {
     public static final String TAB_DATA_SOURCE = "tab_data_source";
 
     private RecyclerView postsRecyclerView;
     private RedditLobbyAdapter postListAdapter;
     private LinearLayoutManager linearLayoutManager;
-    SwipeRefreshLayout swipeToRefreshLayout;
+    private SwipeRefreshLayout swipeToRefreshLayout;
     private ProgressBar progressBar;
     private View loadingMore;
 
@@ -40,6 +43,7 @@ public class RedditLobby extends android.support.v4.app.Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isRefresh = false;
+
     private TabDataSource dataSource;
 
     public enum TabDataSource {
@@ -55,6 +59,13 @@ public class RedditLobby extends android.support.v4.app.Fragment {
             String tabDataSourceName = args.getString(TAB_DATA_SOURCE);
             dataSource = TabDataSource.valueOf(tabDataSourceName);
         }
+        RedditApplication.getInstance().addFilterListsner(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        RedditApplication.getInstance().removeFilterListsner(this);
+        super.onDestroy();
     }
 
     @Override
@@ -68,6 +79,7 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         linearLayoutManager = new LinearLayoutManager(getContext());
         postsRecyclerView.setLayoutManager(linearLayoutManager);
         progressBar = rootView.findViewById(R.id.progress_bar);
+
         swipeToRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
         swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -84,30 +96,33 @@ public class RedditLobby extends android.support.v4.app.Fragment {
 
         fetchDataPage();
 
-        postsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
+        if(dataSource == TabDataSource.reddit) {
+            postsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int dataItemCount = linearLayoutManager.getItemCount();
-                int viewsPerPage = linearLayoutManager.getChildCount();
-                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int dataItemCount = linearLayoutManager.getItemCount();
+                    int viewsPerPage = linearLayoutManager.getChildCount();
+                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
 
-                if (!isLoading && !isLastPage) {
-                    if ((viewsPerPage + firstVisibleItemPosition) >= dataItemCount - 10
-                            && firstVisibleItemPosition >= 0
-                            && dataItemCount >= 10) {
-                        showLoadingMore();
-                        fetchDataPage();
+                    if (!isLoading && !isLastPage) {
+                        if ((viewsPerPage + firstVisibleItemPosition) >= dataItemCount - 10
+                                && firstVisibleItemPosition >= 0
+                                && dataItemCount >= 10) {
+                            showLoadingMore();
+                            fetchDataPage();
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
+        rootView.requestFocus();
         return rootView;
     }
 
@@ -138,8 +153,12 @@ public class RedditLobby extends android.support.v4.app.Fragment {
     }
 
     private void fetchDataPageFromFavorites() {
+        posts = Favorites.getFavorites();
         swipeToRefreshLayout.setRefreshing(false);
-        isRefresh = false;
+        postListAdapter.notifyDataSetChanged();
+        hideLoadingMore();
+        progressBar.setVisibility(View.GONE);
+        isLoading = false;
     }
 
     private void fetchDataPageFromReddit() {
@@ -179,4 +198,9 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         });
     }
 
+
+    @Override
+    public void filterResults(CharSequence value) {
+        postListAdapter.getFilter().filter(value);
+    }
 }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Filterable;
 
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.holders.RedditPostHolder;
@@ -14,14 +15,17 @@ import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 
 import java.util.ArrayList;
+import java.util.logging.Filter;
 
-public class RedditLobbyAdapter extends RecyclerView.Adapter {
+public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterable {
     private static final int ITEM = 1;
     private int lastPosition = -1;
     private ArrayList<RedditThing> posts;
+    private ArrayList<RedditThing> postsFiltered;
 
     public RedditLobbyAdapter(ArrayList<RedditThing> posts) {
         this.posts = posts;
+        this.postsFiltered = posts;
     }
 
     @NonNull
@@ -57,19 +61,20 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter {
     }
 
     private void bindItemViewHolder(@NonNull RedditPostHolder holder, int position) {
-        if(posts != null && posts.size() > position) {
-            RedditThing imageResult = posts.get(position);
+        if(postsFiltered != null && postsFiltered.size() > position) {
+            RedditThing imageResult = postsFiltered.get(position);
             holder.bindTo(imageResult);
         }
     }
 
     @Override
     public int getItemCount() {
-        if(posts == null) {
+        if(postsFiltered == null) {
             return 0;
         }
-        return posts.size();
+        return postsFiltered.size();
     }
+
 
     private void setAnimation(View viewToAnimate, int position)
     {
@@ -79,5 +84,38 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter {
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }
+    }
+
+    @Override
+    public android.widget.Filter getFilter() {
+        return new android.widget.Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String charString = charSequence.toString();
+                if (charString.length() < 4) {
+                    postsFiltered = posts;
+                } else {
+                    ArrayList<RedditThing> filteredList = new ArrayList<>();
+                    for (RedditThing post : posts) {
+                        if (post.getData() != null &&
+                                post.getData().getTitle() != null &&
+                                post.getData().getTitle().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(post);
+                        }
+                    }
+                    postsFiltered = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = postsFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                postsFiltered = (ArrayList<RedditThing>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 }

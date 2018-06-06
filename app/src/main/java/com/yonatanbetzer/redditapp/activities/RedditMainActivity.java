@@ -1,10 +1,17 @@
 package com.yonatanbetzer.redditapp.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
+
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
@@ -13,14 +20,15 @@ public class RedditMainActivity extends AppCompatActivity {
 
     ViewPager tabsViewPager;
     TabsViewPagerAdapter tabsAdapter;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reddit_main_activity);
-//
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("r/politics"));
@@ -53,7 +61,57 @@ public class RedditMainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RedditApplication.setCurrentActivity(this);
+        RedditApplication.getInstance().setCurrentActivity(this);
+        removeFocusFromSearchView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setFocusable(true);
+        searchView.setIconified(false);
+        searchView.setSubmitButtonEnabled(true);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                RedditApplication.getInstance().publishFilter(query);
+                removeFocusFromSearchView();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                RedditApplication.getInstance().publishFilter(query);
+                return false;
+            }
+        });
+        return true;
+    }
+
+
+    private void removeFocusFromSearchView() {
+        if(searchView != null && searchView.hasFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if(imm != null) {
+                imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_search) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }
