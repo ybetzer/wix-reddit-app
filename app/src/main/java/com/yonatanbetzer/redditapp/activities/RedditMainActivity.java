@@ -7,6 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
+import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
+import com.yonatanbetzer.redditapp.server.VolleySingleton;
+import com.yonatanbetzer.redditapp.utils.Constants;
+
+import org.json.JSONObject;
 
 public class RedditMainActivity extends AppCompatActivity {
 
@@ -22,8 +27,8 @@ public class RedditMainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Reddit"));
-        tabLayout.addTab(tabLayout.newTab().setText("Favorites"));
+        tabLayout.addTab(tabLayout.newTab().setText("r/politics"));
+        tabLayout.addTab(tabLayout.newTab().setText("favorites"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         tabsViewPager = findViewById(R.id.tabs_view_pager);

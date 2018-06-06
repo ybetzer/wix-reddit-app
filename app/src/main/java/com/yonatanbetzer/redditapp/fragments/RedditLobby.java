@@ -8,7 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
+import com.yonatanbetzer.redditapp.data_objects.RedditListing;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
+import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
+import com.yonatanbetzer.redditapp.server.VolleySingleton;
+import com.yonatanbetzer.redditapp.utils.Constants;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -37,7 +43,32 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         postsRecyclerView.setAdapter(postListAdapter);
         linearLayoutManager = new LinearLayoutManager(getContext());
         postsRecyclerView.setLayoutManager(linearLayoutManager);
+        getPosts();
         return rootView;
+    }
+
+    private void getPosts() {
+        String lastPostName = "";
+        if(posts.size() > 0) {
+            lastPostName = posts.get(posts.size() - 1).getName();
+        }
+        VolleySingleton.getInstance().getJSONObjectAsync(Constants.ROOT_REDDIT_URL, new AsyncHTTPJSONResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject responseBody) {
+                if(responseBody != null && responseBody.optString("kind", "").equals("Listing")) {
+                    JSONObject listingJsonObject = responseBody.optJSONObject("data");
+                    if(listingJsonObject != null) {
+                        RedditListing listing = RedditListing.fromJsonObject(listingJsonObject);
+                        posts.addAll(listing.getChildren());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(String error, int errorCode) {
+
+            }
+        });
     }
 
 }

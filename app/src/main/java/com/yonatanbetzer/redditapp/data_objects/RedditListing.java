@@ -22,4 +22,8 @@ public class RedditListing {
         result.children = RedditThing.fromJsonArray(source.optJSONArray("children"));
         return result;
     }
+
+    public ArrayList<RedditThing> getChildren() {
+        return children;
+    }
 }
