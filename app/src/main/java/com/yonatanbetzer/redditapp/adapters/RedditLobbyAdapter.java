@@ -27,18 +27,8 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder viewHolder = null;
-
-        switch (viewType) {
-            case ITEM:
-                viewHolder = createItemViewHolder(parent);
-                break;
-            default:
-                break;
-        }
-        return viewHolder;
+        return createItemViewHolder(parent);
     }
-
 
     @NonNull
     private RecyclerView.ViewHolder createItemViewHolder(@NonNull ViewGroup parent) {
@@ -66,14 +56,12 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter {
         }
     }
 
-
     private void bindItemViewHolder(@NonNull RedditPostHolder holder, int position) {
         if(posts != null && posts.size() > position) {
             RedditThing imageResult = posts.get(position);
             holder.bindTo(imageResult);
         }
     }
-
 
     @Override
     public int getItemCount() {

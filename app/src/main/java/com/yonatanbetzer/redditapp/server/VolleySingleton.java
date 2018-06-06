@@ -18,23 +18,9 @@ import org.json.JSONObject;
 public class VolleySingleton {
     private static VolleySingleton mInstance = null;
     private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
 
     private VolleySingleton(){
         mRequestQueue = Volley.newRequestQueue(RedditApplication.getAppContext());
-
-        mImageLoader = new ImageLoader(this.mRequestQueue, new ImageLoader.ImageCache() {
-            ActivityManager am = (ActivityManager) RedditApplication.getAppContext().getSystemService(Context.ACTIVITY_SERVICE);
-            int memClassBytes = am.getMemoryClass() * 1024 * 1024;
-            int cacheSize = memClassBytes / 3;
-            LruCache<String, Bitmap> mCache = new LruCache<>(cacheSize);
-            public void putBitmap(String url, Bitmap bitmap) {
-                mCache.put(url, bitmap);
-            }
-            public Bitmap getBitmap(String url) {
-                return mCache.get(url);
-            }
-        });
     }
 
     public static VolleySingleton getInstance(){
@@ -46,10 +32,6 @@ public class VolleySingleton {
 
     public RequestQueue getRequestQueue(){
         return this.mRequestQueue;
-    }
-
-    public ImageLoader getImageLoader(){
-        return this.mImageLoader;
     }
 
     public void getJSONObjectAsync(final String url,

@@ -1,6 +1,8 @@
 package com.yonatanbetzer.redditapp.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ public class RedditLobby extends android.support.v4.app.Fragment {
     private RecyclerView postsRecyclerView;
     private RedditLobbyAdapter postListAdapter;
     private LinearLayoutManager linearLayoutManager;
+    SwipeRefreshLayout swipeToRefreshLayout;
     private ProgressBar progressBar;
     private View loadingMore;
 
@@ -36,10 +39,22 @@ public class RedditLobby extends android.support.v4.app.Fragment {
 
     private boolean isLoading = false;
     private boolean isLastPage = false;
+    private boolean isRefresh = false;
+    private TabDataSource dataSource;
 
     public enum TabDataSource {
         reddit,
         favorites
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if(args != null) {
+            String tabDataSourceName = args.getString(TAB_DATA_SOURCE);
+            dataSource = TabDataSource.valueOf(tabDataSourceName);
+        }
     }
 
     @Override
@@ -53,6 +68,16 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         linearLayoutManager = new LinearLayoutManager(getContext());
         postsRecyclerView.setLayoutManager(linearLayoutManager);
         progressBar = rootView.findViewById(R.id.progress_bar);
+        swipeToRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                isRefresh = true;
+                posts.clear();
+                lastRedditListing = null;
+                fetchDataPage();
+            }
+        });
         loadingMore = rootView.findViewById(R.id.loading_more);
         TextView loadingMoreTextView = rootView.findViewById(R.id.loading_more_text);
         loadingMoreTextView.setTypeface(Constants.openSansRegularHebrew);
@@ -99,8 +124,27 @@ public class RedditLobby extends android.support.v4.app.Fragment {
     }
 
     private void fetchDataPage() {
+        if(isRefresh) {
+            swipeToRefreshLayout.setRefreshing(true);
+        }
+        switch (dataSource) {
+            case reddit:
+                fetchDataPageFromReddit();
+            break;
+            case favorites:
+                fetchDataPageFromFavorites();
+            break;
+        }
+    }
+
+    private void fetchDataPageFromFavorites() {
+        swipeToRefreshLayout.setRefreshing(false);
+        isRefresh = false;
+    }
+
+    private void fetchDataPageFromReddit() {
         String url = Constants.ROOT_REDDIT_URL;
-        if(posts.size() == 0) {
+        if(posts.size() == 0 && !isRefresh) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -113,6 +157,8 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         VolleySingleton.getInstance().getJSONObjectAsync(url, new AsyncHTTPJSONResponseHandler() {
             @Override
             public void onSuccess(JSONObject responseBody) {
+                isRefresh = false;
+                swipeToRefreshLayout.setRefreshing(false);
                 RedditListing listing = RedditListing.fromJsonObject(responseBody);
                 lastRedditListing = listing;
                 posts.addAll(listing.getChildren());
@@ -124,6 +170,8 @@ public class RedditLobby extends android.support.v4.app.Fragment {
 
             @Override
             public void onFailure(String error, int errorCode) {
+                isRefresh = false;
+                swipeToRefreshLayout.setRefreshing(false);
                 hideLoadingMore();
                 progressBar.setVisibility(View.GONE);
                 isLoading = false;

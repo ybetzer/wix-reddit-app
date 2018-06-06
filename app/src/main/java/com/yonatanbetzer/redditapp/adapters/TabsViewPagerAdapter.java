@@ -17,9 +17,9 @@ public class TabsViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment fragment = new RedditLobby();
         Bundle args = new Bundle();
-        args.putInt(RedditLobby.TAB_DATA_SOURCE, (position == 0)?
-                RedditLobby.TabDataSource.reddit.ordinal() :
-                RedditLobby.TabDataSource.favorites.ordinal());
+        args.putString(RedditLobby.TAB_DATA_SOURCE, (position == 0)?
+                RedditLobby.TabDataSource.reddit.name() :
+                RedditLobby.TabDataSource.favorites.name());
         fragment.setArguments(args);
         return fragment;
     }

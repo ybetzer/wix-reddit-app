@@ -27,7 +27,7 @@ public class RedditData {
         result.ups = source.optInt("ups", 0);
         result.downs = source.optInt("downs", 0);
         result.created_utc = source.optLong("created_utc", 0);
-        result.created_date = new Date(result.created_utc);
+        result.created_date = new Date(result.created_utc * 1000);
         result.body_html = source.optString("body_html", "");
         result.permalink = source.optString("permalink", "");
         result.thumbnail = source.optString("thumbnail", "");
@@ -66,5 +66,9 @@ public class RedditData {
             }
         }
         return thumbnail;
+    }
+
+    public Date getCreatedDate() {
+        return created_date;
     }
 }

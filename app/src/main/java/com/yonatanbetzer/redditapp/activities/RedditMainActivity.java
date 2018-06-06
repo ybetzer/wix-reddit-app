@@ -7,10 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
-import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
-import com.yonatanbetzer.redditapp.server.VolleySingleton;
-import com.yonatanbetzer.redditapp.utils.Constants;
-import org.json.JSONObject;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 public class RedditMainActivity extends AppCompatActivity {
@@ -22,9 +18,9 @@ public class RedditMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reddit_main_activity);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("r/politics"));
