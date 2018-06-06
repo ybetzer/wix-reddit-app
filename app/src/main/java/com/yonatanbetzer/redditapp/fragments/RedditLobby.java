@@ -8,8 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
 import com.yonatanbetzer.redditapp.application.AppData;
@@ -34,6 +37,9 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
     private ProgressBar progressBar;
     private View loadingMore;
     private View scrollTopIcon;
+    private ViewGroup noResultsContainer;
+    private ImageView noResultsImage;
+    private TextView noResultsText;
 
     private RedditListing lastRedditListing;
     private ArrayList<RedditThing> things = new ArrayList<>();
@@ -100,8 +106,6 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
         TextView loadingMoreTextView = rootView.findViewById(R.id.loading_more_text);
         loadingMoreTextView.setTypeface(Constants.openSansRegularHebrew);
 
-        fetchDataPage();
-
         if(dataSource == TabDataSource.reddit) {
             redditThingsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -144,6 +148,16 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
             });
         }
 
+        if(dataSource == TabDataSource.favorites) {
+            noResultsContainer = rootView.findViewById(R.id.no_results_container);
+            noResultsImage = rootView.findViewById(R.id.no_results_image);
+            noResultsText = rootView.findViewById(R.id.no_results_text);
+            noResultsText.setTypeface(Constants.openSansRegularHebrew);
+            Glide.with(this).load(R.drawable.vincent_vega).into(noResultsImage);
+        }
+
+        fetchDataPage();
+
         rootView.requestFocus();
         return rootView;
     }
@@ -176,8 +190,16 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
     }
 
     private void fetchDataPageFromFavorites() {
+        ArrayList<RedditThing> favorites = AppData.getInstance().getFavorites().getFavorites();
+        if(favorites.size() == 0) {
+            noResultsContainer.setVisibility(View.VISIBLE);
+            redditThingsRecyclerView.setVisibility(View.GONE);
+        } else {
+            noResultsContainer.setVisibility(View.GONE);
+            redditThingsRecyclerView.setVisibility(View.VISIBLE);
+        }
         things.clear();
-        things.addAll(AppData.getInstance().getFavorites().getFavorites());
+        things.addAll(favorites);
         swipeToRefreshLayout.setRefreshing(false);
         redditThingsListAdapter.notifyDataSetChanged();
         hideLoadingMore();

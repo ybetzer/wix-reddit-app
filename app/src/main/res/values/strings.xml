@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Reddit App</string>
-    <string name="loading_more">Loading additional things...</string>
+    <string name="loading_more">Loading additional things…</string>
     <string name="today_at">Today @</string>
     <string name="search">Search</string>
     <string name="delete">delete</string>
     <string name="scroll_top">^</string>
+    <string name="no_results_image">No results image</string>
+    <string name="nothing_to_see_here">Nothing added to favorites</string>
+    <string name="up_arrow">up arrow</string>
 </resources>

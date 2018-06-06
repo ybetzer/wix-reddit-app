@@ -11,6 +11,27 @@
             android:layout_height="match_parent">
         </android.support.v7.widget.RecyclerView>
     </android.support.v4.widget.SwipeRefreshLayout>
+    <FrameLayout android:id="@+id/no_results_container"
+        android:layout_gravity="center"
+        android:foregroundGravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <ImageView android:id="@+id/no_results_image"
+            android:contentDescription="@string/no_results_image"
+            android:layout_gravity="center|bottom"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content" />
+        <TextView android:id="@+id/no_results_text"
+            android:textColor="#222222"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:text="@string/nothing_to_see_here"/>
+    </FrameLayout>
+
     <android.support.v7.widget.CardView android:id="@+id/scroll_top_icon"
         android:layout_width="35dp"
         android:layout_height="35dp"
@@ -22,6 +43,7 @@
         <ImageView android:layout_gravity="center"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:contentDescription="@string/up_arrow"
             android:src="@drawable/up"
             android:scaleType="centerInside"
             />
