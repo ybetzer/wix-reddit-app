@@ -32,4 +32,16 @@ public class RedditImage {
         result.height = source.optInt("height", 0);
         return result;
     }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

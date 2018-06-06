@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.webkit.WebView;
 
 import com.yonatanbetzer.redditapp.R;
+import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 public class RedditPostActivity extends AppCompatActivity {
     private WebView webview;
@@ -14,5 +15,11 @@ public class RedditPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reddit_post_activity);
         webview = findViewById(R.id.webview);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RedditApplication.setCurrentActivity(this);
     }
 }

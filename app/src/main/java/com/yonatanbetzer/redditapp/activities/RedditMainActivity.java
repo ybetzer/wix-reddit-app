@@ -10,8 +10,8 @@ import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
 import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
 import com.yonatanbetzer.redditapp.server.VolleySingleton;
 import com.yonatanbetzer.redditapp.utils.Constants;
-
 import org.json.JSONObject;
+import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 public class RedditMainActivity extends AppCompatActivity {
 
@@ -53,4 +53,11 @@ public class RedditMainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RedditApplication.setCurrentActivity(this);
+    }
+
 }

@@ -6,8 +6,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
+import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditListing;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
@@ -23,8 +27,15 @@ public class RedditLobby extends android.support.v4.app.Fragment {
 
     private RecyclerView postsRecyclerView;
     private RedditLobbyAdapter postListAdapter;
-    private RecyclerView.LayoutManager linearLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
+    private ProgressBar progressBar;
+    private View loadingMore;
+
+    private RedditListing lastRedditListing;
     private ArrayList<RedditThing> posts = new ArrayList<>();
+
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
 
     public enum TabDataSource {
         reddit,
@@ -34,8 +45,6 @@ public class RedditLobby extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        // The last two arguments ensure LayoutParams are inflated
-        // properly.
         View rootView = inflater.inflate(
                 R.layout.reddit_lobby_fragment, container, false);
         postsRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
@@ -43,30 +52,81 @@ public class RedditLobby extends android.support.v4.app.Fragment {
         postsRecyclerView.setAdapter(postListAdapter);
         linearLayoutManager = new LinearLayoutManager(getContext());
         postsRecyclerView.setLayoutManager(linearLayoutManager);
-        getPosts();
+        progressBar = rootView.findViewById(R.id.progress_bar);
+        loadingMore = rootView.findViewById(R.id.loading_more);
+        TextView loadingMoreTextView = rootView.findViewById(R.id.loading_more_text);
+        loadingMoreTextView.setTypeface(Constants.openSansRegularHebrew);
+
+        fetchDataPage();
+
+        postsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int dataItemCount = linearLayoutManager.getItemCount();
+                int viewsPerPage = linearLayoutManager.getChildCount();
+                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+
+                if (!isLoading && !isLastPage) {
+                    if ((viewsPerPage + firstVisibleItemPosition) >= dataItemCount - 10
+                            && firstVisibleItemPosition >= 0
+                            && dataItemCount >= 10) {
+                        showLoadingMore();
+                        fetchDataPage();
+                    }
+                }
+            }
+        });
+
         return rootView;
     }
 
-    private void getPosts() {
-        String lastPostName = "";
-        if(posts.size() > 0) {
-            lastPostName = posts.get(posts.size() - 1).getName();
+    private void showLoadingMore() {
+        if(loadingMore != null) {
+            loadingMore.setVisibility(View.VISIBLE);
         }
-        VolleySingleton.getInstance().getJSONObjectAsync(Constants.ROOT_REDDIT_URL, new AsyncHTTPJSONResponseHandler() {
+    }
+
+    private void hideLoadingMore() {
+        if(loadingMore != null) {
+            loadingMore.setVisibility(View.GONE);
+        }
+    }
+
+    private void fetchDataPage() {
+        String url = Constants.ROOT_REDDIT_URL;
+        if(posts.size() == 0) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        if(lastRedditListing != null && lastRedditListing.getAfter() != null) {
+            String separator = (url.contains("?")? "&":"?");
+            url += separator + "after=" + lastRedditListing.getAfter();
+        }
+        isLoading = true;
+
+        VolleySingleton.getInstance().getJSONObjectAsync(url, new AsyncHTTPJSONResponseHandler() {
             @Override
             public void onSuccess(JSONObject responseBody) {
-                if(responseBody != null && responseBody.optString("kind", "").equals("Listing")) {
-                    JSONObject listingJsonObject = responseBody.optJSONObject("data");
-                    if(listingJsonObject != null) {
-                        RedditListing listing = RedditListing.fromJsonObject(listingJsonObject);
-                        posts.addAll(listing.getChildren());
-                    }
-                }
+                RedditListing listing = RedditListing.fromJsonObject(responseBody);
+                lastRedditListing = listing;
+                posts.addAll(listing.getChildren());
+                postListAdapter.notifyDataSetChanged();
+                hideLoadingMore();
+                progressBar.setVisibility(View.GONE);
+                isLoading = false;
             }
 
             @Override
             public void onFailure(String error, int errorCode) {
-
+                hideLoadingMore();
+                progressBar.setVisibility(View.GONE);
+                isLoading = false;
             }
         });
     }

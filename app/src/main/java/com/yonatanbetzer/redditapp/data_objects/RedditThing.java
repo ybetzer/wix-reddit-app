@@ -35,11 +35,11 @@ public class RedditThing {
         return result;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public RedditData getData() {
         return data;
+    }
+
+    public String getName() {
+        return name;
     }
 }

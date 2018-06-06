@@ -15,6 +15,12 @@ public class RedditListing {
             return null;
         }
 
+        if(source.optJSONObject("data") != null) {
+            // Got the parent object,
+            // We want the actual data.
+            source = source.optJSONObject("data");
+        }
+
         RedditListing result = new RedditListing();
         result.before = source.optString("before", "");
         result.after = source.optString("after", "");
@@ -25,5 +31,13 @@ public class RedditListing {
 
     public ArrayList<RedditThing> getChildren() {
         return children;
+    }
+
+    public String getAfter() {
+        return after;
+    }
+
+    public String getBefore() {
+        return before;
     }
 }

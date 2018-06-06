@@ -20,4 +20,12 @@ public class RedditPreview {
         result.resolutions = RedditImage.fromJsonArray(source.optJSONArray("resolutions"));
         return result;
     }
+
+    public RedditImage getSource() {
+        return source;
+    }
+
+    public ArrayList<RedditImage> getResolutions() {
+        return resolutions;
+    }
 }
