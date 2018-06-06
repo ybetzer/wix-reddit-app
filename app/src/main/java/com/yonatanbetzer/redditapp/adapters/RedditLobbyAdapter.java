@@ -11,6 +11,7 @@ import android.widget.Filterable;
 
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.holders.RedditPostHolder;
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 
@@ -80,7 +81,7 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterab
     {
         if (position > lastPosition)
         {
-            Animation animation = AnimationUtils.loadAnimation(RedditApplication.getAppContext(), android.R.anim.slide_in_left);
+            Animation animation = AnimationUtils.loadAnimation(AppData.getAppContext(), android.R.anim.slide_in_left);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }

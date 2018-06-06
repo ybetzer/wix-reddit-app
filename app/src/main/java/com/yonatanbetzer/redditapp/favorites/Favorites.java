@@ -5,21 +5,25 @@ import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import java.util.ArrayList;
 
 public class Favorites {
-    private static ArrayList<RedditThing> favorites = new ArrayList<>();
+    private ArrayList<RedditThing> favorites;
 
-    public static void add(RedditThing post){
+    public Favorites() {
+        favorites = new ArrayList<>();
+    }
+
+    public void add(RedditThing post){
         favorites.add(post);
     }
 
-    public static void remove(RedditThing post) {
+    public void remove(RedditThing post) {
         favorites.remove(post);
     }
 
-    public static boolean isInFavorites(RedditThing post) {
+    public boolean isInFavorites(RedditThing post) {
         return favorites.contains(post);
     }
 
-    public static ArrayList<RedditThing> getFavorites() {
+    public ArrayList<RedditThing> getFavorites() {
         return favorites;
     }
 }

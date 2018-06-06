@@ -3,4 +3,5 @@
     <string name="loading_more">Loading additional posts...</string>
     <string name="today_at">Today @</string>
     <string name="search">Search</string>
+    <string name="delete">delete</string>
 </resources>

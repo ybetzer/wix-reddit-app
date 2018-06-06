@@ -1,18 +1,13 @@
 package com.yonatanbetzer.redditapp.server;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.v4.util.LruCache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
+import com.yonatanbetzer.redditapp.application.AppData;
 import org.json.JSONObject;
 
 public class VolleySingleton {
@@ -20,7 +15,7 @@ public class VolleySingleton {
     private RequestQueue mRequestQueue;
 
     private VolleySingleton(){
-        mRequestQueue = Volley.newRequestQueue(RedditApplication.getAppContext());
+        mRequestQueue = Volley.newRequestQueue(AppData.getAppContext());
     }
 
     public static VolleySingleton getInstance(){

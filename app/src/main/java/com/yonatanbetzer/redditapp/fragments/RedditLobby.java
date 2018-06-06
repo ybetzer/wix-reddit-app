@@ -1,23 +1,24 @@
 package com.yonatanbetzer.redditapp.fragments;
 
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
+import com.yonatanbetzer.redditapp.adapters.holders.RedditPostHolder;
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditListing;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
-import com.yonatanbetzer.redditapp.favorites.Favorites;
 import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
 import com.yonatanbetzer.redditapp.server.VolleySingleton;
 import com.yonatanbetzer.redditapp.utils.Constants;
@@ -59,12 +60,12 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
             String tabDataSourceName = args.getString(TAB_DATA_SOURCE);
             dataSource = TabDataSource.valueOf(tabDataSourceName);
         }
-        RedditApplication.getInstance().addFilterListsner(this);
+        AppData.getInstance().addFilterListsner(this);
     }
 
     @Override
     public void onDestroy() {
-        RedditApplication.getInstance().removeFilterListsner(this);
+        AppData.getInstance().removeFilterListsner(this);
         super.onDestroy();
     }
 
@@ -154,7 +155,8 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
     }
 
     private void fetchDataPageFromFavorites() {
-        posts = Favorites.getFavorites();
+        posts.clear();
+        posts.addAll(AppData.getInstance().getFavorites().getFavorites());
         swipeToRefreshLayout.setRefreshing(false);
         postListAdapter.notifyDataSetChanged();
         hideLoadingMore();
@@ -203,5 +205,13 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
     @Override
     public void filterResults(CharSequence value) {
         postListAdapter.getFilter().filter(value);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(dataSource == TabDataSource.favorites) {
+            fetchDataPageFromFavorites();
+        }
     }
 }

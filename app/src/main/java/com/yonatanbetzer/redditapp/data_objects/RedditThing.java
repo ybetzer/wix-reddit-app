@@ -1,5 +1,7 @@
 package com.yonatanbetzer.redditapp.data_objects;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,5 +49,17 @@ public class RedditThing {
 
     public JSONObject getSourceJson() {
         return sourceJson;
+    }
+
+    @Override
+    public boolean equals(Object otherThingObject) {
+        if(otherThingObject == null) {
+            return false;
+        }
+        if(otherThingObject instanceof RedditThing) {
+            RedditThing otherThing = (RedditThing) otherThingObject;
+            return this.getData().getUrl().equals(otherThing.getData().getUrl());
+        }
+        return false;
     }
 }

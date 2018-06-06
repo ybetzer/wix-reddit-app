@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 import java.text.DateFormat;
@@ -15,7 +17,7 @@ import java.util.Random;
 
 public class Utils {
     public static int pixelsFromDP(int dp) {
-        DisplayMetrics displaymetrics = RedditApplication.getAppContext().getResources().getDisplayMetrics();
+        DisplayMetrics displaymetrics = AppData.getAppContext().getResources().getDisplayMetrics();
         return (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_SP, dp, displaymetrics );
     }
 
@@ -49,10 +51,10 @@ public class Utils {
         DateFormat dateFormat;
         if(isToday(createdDate)) {
             // yesterday or earlier
-            dateFormat = android.text.format.DateFormat.getTimeFormat(RedditApplication.getAppContext());
+            dateFormat = android.text.format.DateFormat.getTimeFormat(AppData.getAppContext());
         } else {
             // since midnight today
-            dateFormat = android.text.format.DateFormat.getDateFormat(RedditApplication.getAppContext());
+            dateFormat = android.text.format.DateFormat.getDateFormat(AppData.getAppContext());
         }
         return dateFormat;
     }

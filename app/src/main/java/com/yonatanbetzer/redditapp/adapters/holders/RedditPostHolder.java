@@ -1,7 +1,6 @@
 package com.yonatanbetzer.redditapp.adapters.holders;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -20,14 +18,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.activities.RedditPostActivity;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import com.yonatanbetzer.redditapp.utils.Constants;
 import com.yonatanbetzer.redditapp.utils.PaletteListener;
 import com.yonatanbetzer.redditapp.utils.Utils;
-
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 public class RedditPostHolder extends RecyclerView.ViewHolder {
@@ -41,6 +37,10 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
         titleView = itemView.findViewById(R.id.title_view);
         imageView = itemView.findViewById(R.id.image_view);
         timeView = itemView.findViewById(R.id.time_view);
+    }
+
+    public RedditThing getRedditThing() {
+        return redditThing;
     }
 
     public void bindTo(RedditThing item){
@@ -69,7 +69,7 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
 
                     String imageUrl = item.getData().getBestImageUrl();
                     if (imageUrl != null && imageUrl.length() > 6) {
-                        Glide.with(RedditApplication.getAppContext())
+                        Glide.with(AppData.getAppContext())
                                 .load(imageUrl)
                                 .listener(new RequestListener<Drawable>() {
                                     @Override
@@ -82,9 +82,6 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
                                         Utils.getImageMainColor(((BitmapDrawable) resource).getBitmap(), new PaletteListener() {
                                             @Override
                                             public void paletteExtracted(Palette palette) {
-                                                if (titleView != null && palette != null) {
-                                                    titleView.setBackgroundColor(palette.getLightVibrantColor(Color.WHITE));
-                                                }
                                                 if (timeView != null && palette != null) {
                                                     timeView.setBackgroundColor(palette.getDarkVibrantColor(Color.BLACK));
                                                 }
@@ -111,10 +108,10 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void onClick(View v) {
                         if(redditThing.getData().getUrl() != null) {
-                            Intent redditPostWebviewIntent = new Intent(RedditApplication.getAppContext(), RedditPostActivity.class);
+                            Intent redditPostWebviewIntent = new Intent(AppData.getAppContext(), RedditPostActivity.class);
                             redditPostWebviewIntent.putExtra(RedditPostActivity.EXTRA_REDDIT_THING_JSON, redditThing.getSourceJson().toString());
                             redditPostWebviewIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            RedditApplication.getAppContext().startActivity(redditPostWebviewIntent);
+                            AppData.getInstance().getCurrentActivity().startActivity(redditPostWebviewIntent);
                         }
                     }
                 });

@@ -10,16 +10,21 @@ import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.yonatanbetzer.redditapp.R;
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
+import com.yonatanbetzer.redditapp.favorites.Favorites;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RedditPostActivity extends AppCompatActivity {
     private WebView webview;
     private RedditThing post;
+    private ImageView favoritesIcon;
     private ProgressBar progressBar;
     public static final String EXTRA_REDDIT_THING_JSON = "EXTRA_REDDIT_THING_JSON";
 
@@ -29,6 +34,7 @@ public class RedditPostActivity extends AppCompatActivity {
         setContentView(R.layout.reddit_post_activity);
 
         progressBar = findViewById(R.id.progress_bar);
+        favoritesIcon = findViewById(R.id.favorites_icon);
         webview = findViewById(R.id.webview);
         prepareWebview();
 
@@ -42,11 +48,34 @@ public class RedditPostActivity extends AppCompatActivity {
                     if(post != null && post.getData() != null && post.getData().getUrl() != null && post.getData().getUrl().length() > 6) {
                         webview.loadUrl(post.getData().getUrl());
                     }
+
+                    updateFavoritesIcon();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    private void updateFavoritesIcon() {
+        if(AppData.getInstance().getFavorites().isInFavorites(post)) {
+            favoritesIcon.setImageResource(R.drawable.favorites_checked);
+        } else {
+            favoritesIcon.setImageResource(R.drawable.favorites_unchecked);
+        }
+
+        favoritesIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(AppData.getInstance().getFavorites().isInFavorites(post)) {
+                    AppData.getInstance().getFavorites().remove(post);
+                    favoritesIcon.setImageResource(R.drawable.favorites_unchecked);
+                } else {
+                    AppData.getInstance().getFavorites().add(post);
+                    favoritesIcon.setImageResource(R.drawable.favorites_checked);
+                }
+            }
+        });
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -68,7 +97,7 @@ public class RedditPostActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RedditApplication.getInstance().setCurrentActivity(this);
+        AppData.getInstance().setCurrentActivity(this);
     }
 
     private class RedditWebviewClient extends WebViewClient {

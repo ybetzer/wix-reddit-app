@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
+import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 public class RedditMainActivity extends AppCompatActivity {
@@ -29,6 +30,7 @@ public class RedditMainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle("");
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("r/politics"));
@@ -61,8 +63,12 @@ public class RedditMainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RedditApplication.getInstance().setCurrentActivity(this);
+        AppData.getInstance().setCurrentActivity(this);
         removeFocusFromSearchView();
+        if(searchView != null) {
+            searchView.setQuery("", false);
+        }
+        AppData.getInstance().publishFilter("");
     }
 
     @Override
@@ -80,14 +86,14 @@ public class RedditMainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                RedditApplication.getInstance().publishFilter(query);
+                AppData.getInstance().publishFilter(query);
                 removeFocusFromSearchView();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                RedditApplication.getInstance().publishFilter(query);
+                AppData.getInstance().publishFilter(query);
                 return false;
             }
         });
