@@ -150,6 +150,7 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
                 fetchDataPageFromFavorites();
             break;
         }
+        postsRecyclerView.requestFocus();
     }
 
     private void fetchDataPageFromFavorites() {

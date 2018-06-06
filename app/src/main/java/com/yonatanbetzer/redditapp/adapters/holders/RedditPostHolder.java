@@ -1,5 +1,6 @@
 package com.yonatanbetzer.redditapp.adapters.holders;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,6 +19,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.yonatanbetzer.redditapp.R;
+import com.yonatanbetzer.redditapp.activities.RedditPostActivity;
 import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import com.yonatanbetzer.redditapp.utils.Constants;
@@ -104,6 +106,18 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
                     titleView.setText(item.getData().getTitle());
                     titleView.setTypeface(Constants.openSansRegularHebrew);
                 }
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(redditThing.getData().getUrl() != null) {
+                            Intent redditPostWebviewIntent = new Intent(RedditApplication.getAppContext(), RedditPostActivity.class);
+                            redditPostWebviewIntent.putExtra(RedditPostActivity.EXTRA_REDDIT_THING_JSON, redditThing.getSourceJson().toString());
+                            redditPostWebviewIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            RedditApplication.getAppContext().startActivity(redditPostWebviewIntent);
+                        }
+                    }
+                });
             }
         }
     }

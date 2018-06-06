@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class RedditThing {
+    private JSONObject sourceJson;
     private String id;
     private String name;
     private String kind;
@@ -28,6 +29,7 @@ public class RedditThing {
             return null;
         }
         RedditThing result = new RedditThing();
+        result.sourceJson = source;
         result.id = source.optString("id", "");
         result.name = source.optString("name", "");
         result.kind = source.optString("kind", "");
@@ -41,5 +43,9 @@ public class RedditThing {
 
     public String getName() {
         return name;
+    }
+
+    public JSONObject getSourceJson() {
+        return sourceJson;
     }
 }
