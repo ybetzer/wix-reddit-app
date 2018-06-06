@@ -1,12 +1,10 @@
 package com.yonatanbetzer.redditapp.fragments;
 
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.RedditLobbyAdapter;
-import com.yonatanbetzer.redditapp.adapters.holders.RedditPostHolder;
 import com.yonatanbetzer.redditapp.application.AppData;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditListing;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import com.yonatanbetzer.redditapp.server.AsyncHTTPJSONResponseHandler;
@@ -31,15 +27,16 @@ import java.util.ArrayList;
 public class RedditLobby extends android.support.v4.app.Fragment implements FilterListener {
     public static final String TAB_DATA_SOURCE = "tab_data_source";
 
-    private RecyclerView postsRecyclerView;
-    private RedditLobbyAdapter postListAdapter;
+    private RecyclerView redditThingsRecyclerView;
+    private RedditLobbyAdapter redditThingsListAdapter;
     private LinearLayoutManager linearLayoutManager;
     private SwipeRefreshLayout swipeToRefreshLayout;
     private ProgressBar progressBar;
     private View loadingMore;
+    private View scrollTopIcon;
 
     private RedditListing lastRedditListing;
-    private ArrayList<RedditThing> posts = new ArrayList<>();
+    private ArrayList<RedditThing> things = new ArrayList<>();
 
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -74,19 +71,27 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
                              ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(
                 R.layout.reddit_lobby_fragment, container, false);
-        postsRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
-        postListAdapter = new RedditLobbyAdapter(posts);
-        postsRecyclerView.setAdapter(postListAdapter);
+        redditThingsRecyclerView = rootView.findViewById(R.id.posts_recycler_view);
+        redditThingsListAdapter = new RedditLobbyAdapter(things);
+        redditThingsRecyclerView.setAdapter(redditThingsListAdapter);
         linearLayoutManager = new LinearLayoutManager(getContext());
-        postsRecyclerView.setLayoutManager(linearLayoutManager);
+        redditThingsRecyclerView.setLayoutManager(linearLayoutManager);
         progressBar = rootView.findViewById(R.id.progress_bar);
 
+        scrollTopIcon = rootView.findViewById(R.id.scroll_top_icon);
+        scrollTopIcon.setVisibility(View.GONE);
+        scrollTopIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                redditThingsRecyclerView.smoothScrollToPosition(0);
+            }
+        });
         swipeToRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
         swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 isRefresh = true;
-                posts.clear();
+                things.clear();
                 lastRedditListing = null;
                 fetchDataPage();
             }
@@ -98,10 +103,21 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
         fetchDataPage();
 
         if(dataSource == TabDataSource.reddit) {
-            postsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            redditThingsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
+                    switch (newState) {
+                        case RecyclerView.SCROLL_STATE_IDLE:
+                            scrollTopIcon.setAlpha(1.0f);
+                            break;
+                        case RecyclerView.SCROLL_STATE_DRAGGING:
+                            scrollTopIcon.setAlpha(0.5f);
+                            break;
+                        case RecyclerView.SCROLL_STATE_SETTLING:
+                            scrollTopIcon.setAlpha(0.75f);
+                            break;
+                    }
                 }
 
                 @Override
@@ -111,6 +127,11 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
                     int viewsPerPage = linearLayoutManager.getChildCount();
                     int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
 
+                    if(firstVisibleItemPosition > 5) {
+                        scrollTopIcon.setVisibility(View.VISIBLE);
+                    } else {
+                        scrollTopIcon.setVisibility(View.GONE);
+                    }
                     if (!isLoading && !isLastPage) {
                         if ((viewsPerPage + firstVisibleItemPosition) >= dataItemCount - 10
                                 && firstVisibleItemPosition >= 0
@@ -151,14 +172,14 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
                 fetchDataPageFromFavorites();
             break;
         }
-        postsRecyclerView.requestFocus();
+        redditThingsRecyclerView.requestFocus();
     }
 
     private void fetchDataPageFromFavorites() {
-        posts.clear();
-        posts.addAll(AppData.getInstance().getFavorites().getFavorites());
+        things.clear();
+        things.addAll(AppData.getInstance().getFavorites().getFavorites());
         swipeToRefreshLayout.setRefreshing(false);
-        postListAdapter.notifyDataSetChanged();
+        redditThingsListAdapter.notifyDataSetChanged();
         hideLoadingMore();
         progressBar.setVisibility(View.GONE);
         isLoading = false;
@@ -166,7 +187,7 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
 
     private void fetchDataPageFromReddit() {
         String url = Constants.ROOT_REDDIT_URL;
-        if(posts.size() == 0 && !isRefresh) {
+        if(things.size() == 0 && !isRefresh) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -183,8 +204,8 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
                 swipeToRefreshLayout.setRefreshing(false);
                 RedditListing listing = RedditListing.fromJsonObject(responseBody);
                 lastRedditListing = listing;
-                posts.addAll(listing.getChildren());
-                postListAdapter.notifyDataSetChanged();
+                things.addAll(listing.getChildren());
+                redditThingsListAdapter.notifyDataSetChanged();
                 hideLoadingMore();
                 progressBar.setVisibility(View.GONE);
                 isLoading = false;
@@ -204,7 +225,7 @@ public class RedditLobby extends android.support.v4.app.Fragment implements Filt
 
     @Override
     public void filterResults(CharSequence value) {
-        postListAdapter.getFilter().filter(value);
+        redditThingsListAdapter.getFilter().filter(value);
     }
 
     @Override

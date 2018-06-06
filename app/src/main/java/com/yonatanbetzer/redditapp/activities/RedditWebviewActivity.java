@@ -14,14 +14,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.application.AppData;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
-import com.yonatanbetzer.redditapp.favorites.Favorites;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RedditPostActivity extends AppCompatActivity {
+public class RedditWebviewActivity extends AppCompatActivity {
     private WebView webview;
     private RedditThing post;
     private ImageView favoritesIcon;
@@ -31,7 +29,7 @@ public class RedditPostActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reddit_post_activity);
+        setContentView(R.layout.reddit_webview_activity);
 
         progressBar = findViewById(R.id.progress_bar);
         favoritesIcon = findViewById(R.id.favorites_icon);

@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -17,7 +16,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.yonatanbetzer.redditapp.R;
-import com.yonatanbetzer.redditapp.activities.RedditPostActivity;
+import com.yonatanbetzer.redditapp.activities.RedditWebviewActivity;
 import com.yonatanbetzer.redditapp.application.AppData;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 import com.yonatanbetzer.redditapp.utils.Constants;
@@ -26,13 +25,13 @@ import com.yonatanbetzer.redditapp.utils.Utils;
 import java.text.DateFormat;
 import java.util.Date;
 
-public class RedditPostHolder extends RecyclerView.ViewHolder {
+public class RedditThingViewHolder extends RecyclerView.ViewHolder {
     private ImageView imageView;
     private TextView titleView;
     private TextView timeView;
     private RedditThing redditThing;
 
-    public RedditPostHolder(View itemView) {
+    public RedditThingViewHolder(View itemView) {
         super(itemView);
         titleView = itemView.findViewById(R.id.title_view);
         imageView = itemView.findViewById(R.id.image_view);
@@ -108,8 +107,8 @@ public class RedditPostHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void onClick(View v) {
                         if(redditThing.getData().getUrl() != null) {
-                            Intent redditPostWebviewIntent = new Intent(AppData.getAppContext(), RedditPostActivity.class);
-                            redditPostWebviewIntent.putExtra(RedditPostActivity.EXTRA_REDDIT_THING_JSON, redditThing.getSourceJson().toString());
+                            Intent redditPostWebviewIntent = new Intent(AppData.getAppContext(), RedditWebviewActivity.class);
+                            redditPostWebviewIntent.putExtra(RedditWebviewActivity.EXTRA_REDDIT_THING_JSON, redditThing.getSourceJson().toString());
                             redditPostWebviewIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             AppData.getInstance().getCurrentActivity().startActivity(redditPostWebviewIntent);
                         }

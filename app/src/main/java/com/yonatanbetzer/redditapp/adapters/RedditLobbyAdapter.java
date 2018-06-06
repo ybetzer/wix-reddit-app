@@ -10,23 +10,21 @@ import android.view.animation.AnimationUtils;
 import android.widget.Filterable;
 
 import com.yonatanbetzer.redditapp.R;
-import com.yonatanbetzer.redditapp.adapters.holders.RedditPostHolder;
+import com.yonatanbetzer.redditapp.adapters.holders.RedditThingViewHolder;
 import com.yonatanbetzer.redditapp.application.AppData;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
 import com.yonatanbetzer.redditapp.data_objects.RedditThing;
 
 import java.util.ArrayList;
-import java.util.logging.Filter;
 
 public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterable {
     private static final int ITEM = 1;
     private int lastPosition = -1;
-    private ArrayList<RedditThing> posts;
-    private ArrayList<RedditThing> postsFiltered;
+    private ArrayList<RedditThing> things;
+    private ArrayList<RedditThing> thingsFiltered;
 
-    public RedditLobbyAdapter(ArrayList<RedditThing> posts) {
-        this.posts = posts;
-        this.postsFiltered = posts;
+    public RedditLobbyAdapter(ArrayList<RedditThing> things) {
+        this.things = things;
+        this.thingsFiltered = things;
     }
 
     @NonNull
@@ -39,8 +37,8 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterab
     private RecyclerView.ViewHolder createItemViewHolder(@NonNull ViewGroup parent) {
         RecyclerView.ViewHolder viewHolder;
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.reddit_post_holder, parent, false);
-        viewHolder = new RedditPostHolder(itemView);
+                .inflate(R.layout.reddit_thing_holder, parent, false);
+        viewHolder = new RedditThingViewHolder(itemView);
         return viewHolder;
     }
 
@@ -53,7 +51,7 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterab
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case ITEM:
-                bindItemViewHolder((RedditPostHolder) holder, position);
+                bindItemViewHolder((RedditThingViewHolder) holder, position);
                 setAnimation(holder.itemView, position);
                 break;
             default:
@@ -61,19 +59,19 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterab
         }
     }
 
-    private void bindItemViewHolder(@NonNull RedditPostHolder holder, int position) {
-        if(postsFiltered != null && postsFiltered.size() > position) {
-            RedditThing imageResult = postsFiltered.get(position);
+    private void bindItemViewHolder(@NonNull RedditThingViewHolder holder, int position) {
+        if(thingsFiltered != null && thingsFiltered.size() > position) {
+            RedditThing imageResult = thingsFiltered.get(position);
             holder.bindTo(imageResult);
         }
     }
 
     @Override
     public int getItemCount() {
-        if(postsFiltered == null) {
+        if(thingsFiltered == null) {
             return 0;
         }
-        return postsFiltered.size();
+        return thingsFiltered.size();
     }
 
 
@@ -94,27 +92,27 @@ public class RedditLobbyAdapter extends RecyclerView.Adapter implements Filterab
             protected FilterResults performFiltering(CharSequence charSequence) {
                 String charString = charSequence.toString();
                 if (charString.length() < 4) {
-                    postsFiltered = posts;
+                    thingsFiltered = things;
                 } else {
                     ArrayList<RedditThing> filteredList = new ArrayList<>();
-                    for (RedditThing post : posts) {
-                        if (post.getData() != null &&
-                                post.getData().getTitle() != null &&
-                                post.getData().getTitle().toLowerCase().contains(charString.toLowerCase())) {
-                            filteredList.add(post);
+                    for (RedditThing thing : things) {
+                        if (thing.getData() != null &&
+                                thing.getData().getTitle() != null &&
+                                thing.getData().getTitle().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(thing);
                         }
                     }
-                    postsFiltered = filteredList;
+                    thingsFiltered = filteredList;
                 }
 
                 FilterResults filterResults = new FilterResults();
-                filterResults.values = postsFiltered;
+                filterResults.values = thingsFiltered;
                 return filterResults;
             }
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                postsFiltered = (ArrayList<RedditThing>) filterResults.values;
+                thingsFiltered = (ArrayList<RedditThing>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
