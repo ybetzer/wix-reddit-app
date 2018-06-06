@@ -3,7 +3,6 @@ package com.yonatanbetzer.redditapp.data_objects;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class RedditPreview {
     private RedditImage source;

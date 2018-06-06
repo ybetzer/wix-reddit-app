@@ -38,61 +38,53 @@ public class RedditThingViewHolder extends RecyclerView.ViewHolder {
         timeView = itemView.findViewById(R.id.time_view);
     }
 
-    public RedditThing getRedditThing() {
-        return redditThing;
-    }
-
     public void bindTo(RedditThing item){
         if(imageView != null && titleView != null && timeView != null) {
             redditThing = item;
             imageView.setBackgroundColor(Utils.getRandomColor());
 
             if(item.getData() != null) {
-                if (item.getData().getThumbnail() != null &&
-                        item.getData().getThumbnail().length() > 6) {
+                String imageUrl = item.getData().getBestImageUrl();
+                Date createdDate = item.getData().getCreatedDate();
+                if (createdDate.getTime() > 100) {
+                    DateFormat dateFormat = Utils.getDateFormat(createdDate);
+
+                    String dateText = dateFormat.format(createdDate);
+                    if(Utils.isToday(createdDate)) {
+                        dateText = "Today @" + dateFormat.format(createdDate);
+                    }
+                    timeView.setText(dateText);
+                    timeView.setTypeface(Constants.openSansRegularHebrew);
+                    timeView.setVisibility(View.VISIBLE);
+                } else {
+                    timeView.setVisibility(View.GONE);
+                }
+
+                if (imageUrl != null && imageUrl.length() > 6) {
                     imageView.setVisibility(View.VISIBLE);
-                    Date createdDate = item.getData().getCreatedDate();
-                    if (createdDate.getTime() > 100) {
-                        DateFormat dateFormat = Utils.getDateFormat(createdDate);
 
-                        String dateText = dateFormat.format(createdDate);
-                        if(Utils.isToday(createdDate)) {
-                            dateText = "Today @" + dateFormat.format(createdDate);
-                        }
-                        timeView.setText(dateText);
-                        timeView.setTypeface(Constants.openSansRegularHebrew);
-                        timeView.setVisibility(View.VISIBLE);
-                    } else {
-                        timeView.setVisibility(View.GONE);
-                    }
+                    Glide.with(AppData.getAppContext())
+                            .load(imageUrl)
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
 
-                    String imageUrl = item.getData().getBestImageUrl();
-                    if (imageUrl != null && imageUrl.length() > 6) {
-                        Glide.with(AppData.getAppContext())
-                                .load(imageUrl)
-                                .listener(new RequestListener<Drawable>() {
-                                    @Override
-                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                        Utils.getImageMainColor(((BitmapDrawable) resource).getBitmap(), new PaletteListener() {
-                                            @Override
-                                            public void paletteExtracted(Palette palette) {
-                                                if (timeView != null && palette != null) {
-                                                    timeView.setBackgroundColor(palette.getDarkVibrantColor(Color.BLACK));
-                                                }
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    Utils.getImageMainColor(((BitmapDrawable) resource).getBitmap(), new PaletteListener() {
+                                        @Override
+                                        public void paletteExtracted(Palette palette) {
+                                            if (timeView != null && palette != null) {
+                                                timeView.setBackgroundColor(palette.getDarkVibrantColor(Color.BLACK));
                                             }
-                                        });
-                                        return false;
-                                    }
-                                })
-                                .into(imageView);
-                    } else {
-                        imageView.setVisibility(View.GONE);
-                    }
+                                        }
+                                    });
+                                    return false;
+                                }
+                            })
+                            .into(imageView);
                 } else {
                     timeView.setVisibility(View.GONE);
                     imageView.setVisibility(View.GONE);

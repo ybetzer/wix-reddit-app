@@ -23,6 +23,4 @@ public class RedditApplication extends Application {
     public static RedditApplication getInstance(){
         return mInstance;
     }
-
-
 }

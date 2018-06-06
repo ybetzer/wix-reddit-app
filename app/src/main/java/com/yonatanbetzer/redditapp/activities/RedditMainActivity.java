@@ -15,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import com.yonatanbetzer.redditapp.R;
 import com.yonatanbetzer.redditapp.adapters.TabsViewPagerAdapter;
 import com.yonatanbetzer.redditapp.application.AppData;
-import com.yonatanbetzer.redditapp.application.RedditApplication;
 
 public class RedditMainActivity extends AppCompatActivity {
 
@@ -77,7 +76,9 @@ public class RedditMainActivity extends AppCompatActivity {
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        if(searchManager != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        }
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setFocusable(true);
         searchView.setIconified(false);

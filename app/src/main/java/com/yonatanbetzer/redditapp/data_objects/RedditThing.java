@@ -1,7 +1,5 @@
 package com.yonatanbetzer.redditapp.data_objects;
 
-import android.support.annotation.NonNull;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -53,8 +53,6 @@ public class RedditData {
         return url;
     }
 
-    public RedditPreview getPreview() { return preview; }
-
     public String getBestImageUrl() {
         if(preview != null) {
             if(preview.getSource() != null) {
